@@ -1,0 +1,9 @@
+The task is to create a minimal single-page web app.
+The app should fulfill the user's project brief and run with minimal setup.
+
+Required output:
+1. main.py or server file (if API)
+2. index.html (client)
+3. README.md with setup instructions
+
+Ensure the code is minimal, modular, and functional.
