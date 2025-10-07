@@ -21,5 +21,6 @@ class ReviseRequest(BaseModel):
     secret: str = Field(..., description="Shared secret for request authentication")
     project_name: str = Field(..., example="LLM Deployment Agent")
     repo_url: HttpUrl = Field(..., example="https://github.com/student/llm-student-agent")
+    brief: Optional[Dict[str, Any]] = None  # <-- add this
     changes: List[str] = Field(..., description="List of textual change instructions or issues to fix")
     round_id: Optional[int] = Field(2, description="Revision round number (default: 2)")

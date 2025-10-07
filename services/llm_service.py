@@ -46,3 +46,25 @@ class LLMService:
 
         logger.info("Mock LLM generation complete.")
         return generated_files
+    
+    def refactor_code(self, existing_files: Dict[str, str], brief: Dict[str, Any]) -> Dict[str, str]:
+        """
+        Refactor existing code based on the new brief.
+        Returns updated file contents as dict {filename: content}.
+        """
+        logger.info("Invoking LLM for code refactoring...")
+
+        # Load refactor prompt
+        refactor_prompt = self.load_prompt("refactor_prompt.txt")
+
+        # Combine prompt, brief, and existing files
+        combined_prompt = f"{refactor_prompt}\n\nBrief:\n{brief}\n\nExisting Files:\n{list(existing_files.keys())}"
+        logger.debug(f"Refactor Prompt Preview:\n{combined_prompt[:300]}...")
+
+        # Mock LLM response for now: just append a comment to each file
+        updated_files = {}
+        for fname, content in existing_files.items():
+            updated_files[fname] = content + f"\n# Updated for round 2 based on brief: {brief}\n"
+
+        logger.info("Refactor complete (mock).")
+        return updated_files

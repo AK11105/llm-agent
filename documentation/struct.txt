@@ -1,0 +1,52 @@
+llm_agent/
+├── api/
+│   ├── __init__.py
+│   ├── endpoints.py          # Defines /build and /revise routes
+│   ├── validators.py         # Validates incoming JSON schema and secrets
+│
+├── core/
+│   ├── __init__.py
+│   ├── build_flow.py         # Main orchestration for first build
+│   ├── revise_flow.py        # Handles code updates & redeployments
+│
+├── services/
+│   ├── __init__.py
+│   ├── llm_service.py        # Interacts with the LLM for code generation/refactor
+│   ├── github_service.py     # Handles repo creation, commits, and GitHub Pages deploy
+│   ├── http_service.py       # Handles POSTs to institution evaluation endpoint
+│   ├── secret_service.py     # Authenticates requests using a shared secret
+│   ├── storage_service.py    # Optional: caches attachments or generated code temporarily
+│
+├── templates/
+│   ├── app_prompt.txt        # Base LLM prompt for fresh app generation
+│   ├── revise_prompt.txt     # Prompt for refactoring an existing repo
+│   ├── readme_prompt.txt     # Prompt to create README.md
+│   ├── license.txt           # MIT License template
+│
+├── utils/
+│   ├── __init__.py
+│   ├── logger.py             # Centralized logging setup
+│   ├── config.py             # Loads environment variables and configs
+│   ├── files.py              # File read/write, temp dir helpers
+│   ├── retry.py              # Retry decorator for network operations
+│
+├── data/
+│   ├── __init__.py
+│   ├── db.py                 # Optional: SQLite setup for local tracking
+│   ├── models.py             # Schema for builds, revisions, logs
+│   ├── cache.json            # Local metadata (repo URLs, commit SHAs)
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_build_flow.py    # Unit tests for initial build logic
+│   ├── test_revise_flow.py   # Unit tests for revision flow
+│   ├── test_http_service.py  # Tests POST requests and responses
+│
+├── configs/
+│   ├── dev.env               # Contains local environment variables
+│   ├── logging.yaml          # Logging format and verbosity settings
+│
+├── .env                      # Main environment file for runtime (gitignored)
+├── requirements.txt           # Python dependencies (FastAPI, requests, openai, etc.)
+├── README.md                  # Documentation for your own repo
+└── main.py                    # Entry point: runs API server and registers routes
