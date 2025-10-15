@@ -1,0 +1,34 @@
+# =========================================================
+#  Render Deployment Configuration for FastAPI + OpenAI App
+# =========================================================
+services:
+  - type: web
+    name: llm-agent
+    runtime: python
+    region: singapore              # or choose "oregon", "frankfurt", etc.
+    plan: free                     # change to 'starter' or 'pro' if needed
+
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+    startCommand: |
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: ENV
+        value: production
+
+      # ========== Required API Keys ==========
+      - key: OPENAI_API_KEY
+        sync: false                 # Add in Render Dashboard (for security)
+      - key: GITHUB_TOKEN
+        sync: false
+
+      # ========== Optional Configuration ==========
+      - key: LOG_LEVEL
+        value: info
+      - key: APP_NAME
+        value: AIPipe
+
+    autoDeploy: true
