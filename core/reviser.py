@@ -47,6 +47,10 @@ class Reviser:
         if attachment_names:
             try:
                 copy_required_attachments(task_dir, attachment_names)
+                for name in attachment_names:
+                    attachment_path = task_dir / name
+                    if attachment_path.exists():
+                        saved_files.append(str(attachment_path))
                 logger.info(f"Copied {len(attachment_names)} attachments for revision of {task}")
             except Exception as e:
                 logger.error(f"Attachment copy failed during revision: {e}")

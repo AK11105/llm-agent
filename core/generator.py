@@ -50,6 +50,11 @@ class CodeGenerator:
             logger.info(f"Copying {len(attachment_names)} attachment(s) into workspace for task {task}")
             try:
                 copy_required_attachments(output_dir, attachment_names)
+                # Add copied attachments to the list of files to commit
+                for name in attachment_names:
+                    attachment_path = output_dir / name
+                    if attachment_path.exists():
+                        saved_files.append(str(attachment_path))
             except Exception as e:
                 logger.error(f"Attachment copy failed: {e}")
 
