@@ -15,48 +15,48 @@ class Builder:
         self.generator = CodeGenerator()
         self.deployer = Deployer()
 
-    def run_full_pipeline(self, brief, project_name):
+    async def run_full_pipeline(self, task, brief, checks, attachments):
         """
         Step 1. Generate project code
         Step 2. Deploy to GitHub
         Step 3. Return final result metadata
         """
-        logger.info(f"🧠 Running full build pipeline for {project_name}")
+        logger.info(f"🧠 Running full build pipeline for {task}")
 
-        build_metadata = self.generator.orchestrate_build(brief, project_name)
-        deploy_metadata = self.deployer.deploy_to_github(build_metadata)
+        build_metadata = await self.generator.orchestrate_build(task, brief, checks, attachments)
+        deploy_metadata = await self.deployer.deploy_to_github(build_metadata)
 
         final = {
-            "project": project_name,
+            "project": task,
             "build_output": build_metadata,
             "deployment": deploy_metadata,
         }
 
-        logger.info(f"🎯 Pipeline completed for {project_name}")
+        logger.info(f"🎯 Pipeline completed for {task}")
         return final
     
-    def run_revision_pipeline(self, brief, project_name):
+    async def run_revision_pipeline(self, task, brief, checks, attachments):
         """
         Step 1. Apply revision/refactor
         Step 2. Push changes to GitHub
         Step 3. Redeploy Pages
         """
-        logger.info(f"🔁 Running revision pipeline for {project_name}")
+        logger.info(f"🔁 Running revision pipeline for {task}")
 
         reviser = Reviser()
         deployer = Deployer()
 
         # Step 1: Refactor code
-        revision_metadata = reviser.apply_revision(project_name, brief)
+        revision_metadata = await reviser.apply_revision(task, brief, checks, attachments)
 
         # Step 2: Push updated files & redeploy Pages
-        deployment_metadata = deployer.deploy_to_github(revision_metadata)
+        deployment_metadata = await deployer.deploy_to_github(revision_metadata)
 
         result = {
-            "project": project_name,
+            "project": task,
             "revision_output": revision_metadata,
             "deployment": deployment_metadata
         }
 
-        logger.info(f"✅ Revision pipeline complete for {project_name}")
+        logger.info(f"✅ Revision pipeline complete for {task}")
         return result

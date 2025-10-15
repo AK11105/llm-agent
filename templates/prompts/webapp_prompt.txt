@@ -1,9 +1,33 @@
-The task is to create a minimal single-page web app.
-The app should fulfill the user's project brief and run with minimal setup.
+You are generating a deployable web application from a formal specification.
 
-Required output:
-1. main.py or server file (if API)
-2. index.html (client)
-3. README.md with setup instructions
+Input context:
+- **Task:** mentioned below the instructions
+- **Brief:** mentioned below the instructions
+- **Checks (requirements/tests):** mentioned below the instructions
+- **Attachments:** mentioned below the instructions
 
-Ensure the code is minimal, modular, and functional.
+Instructions:
+1. Read and understand all provided inputs carefully.
+2. Generate a **complete working application** that meets the task and checks.
+3. Follow best practices for code organization, security, and clarity.
+4. Include:
+   - Backend (API/Logic) = Use Python for core app task logic unless specified otherwise
+   - Frontend (UI) = Use standard HTML, CSS, JS(if needed) for frontend unless specified otherwise
+   - Configuration files (package.json, requirements.txt, etc.)
+   - Deployment ready setup (GitHub Pages)
+5. If the task suggests a data pipeline, notebook, or analysis, still maintain proper file structure.
+6. Never use dummy values or fake data unless clearly requested.
+7. Return your response as a JSON object where keys are filenames and values are the corresponding file contents."
+
+Attachment Handling:
+- Only include attachments explicitly provided in this request.
+- Copy these attachments into the workspace project folder so the project is self-contained.
+  Example: if 'logo.png' is provided, it should appear as './logo.png' inside the project folder.
+- Generated code must reference attachments locally:
+  - Python/file reads: './<filename>'
+  - Browser JS: fetch('./<filename>')
+- Do NOT reference files outside the workspace folder or copy unrelated attachments.
+- If an attachment filename might conflict with an existing file, assume a unique version will be used.
+
+
+Your response must be valid code that can be committed as a project root directory.

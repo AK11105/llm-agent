@@ -1,26 +1,34 @@
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, EmailStr, PositiveInt, AnyUrl
 from typing import Optional, List, Dict, Any
 
-class BuildRequest(BaseModel):
+class Attachment(BaseModel):
+    name: str = Field(..., description="Name of the attachment")
+    url: str = Field(..., description="Actual Attachment URL")
+
+class Request(BaseModel):
     """
-    Represents the first request from the evaluator system.
+    Represents the request from the evaluator system.
     Contains project metadata, app brief, and repository info.
     """
+    email: EmailStr = Field(..., description="Student Email ID")
     secret: str = Field(..., description="Shared secret for request authentication")
-    project_name: str = Field(..., example="LLM Deployment Agent")
-    description: Optional[str] = Field(None, example="Build and deploy student-side automation agent.")
-    repo_name: Optional[str] = Field(None, example="llm-student-agent")
-    brief: Dict[str, Any] = Field(..., description="Detailed brief or config for the build process")
-    callback_url: Optional[HttpUrl] = Field(None, description="Evaluator callback endpoint (optional)")
-
-class ReviseRequest(BaseModel):
+    task: str = Field(..., example="LLM Deployment Agent")
+    round: PositiveInt = Field(..., description="There will be multiple rounds per task. This is the round index")
+    nonce: str = Field(..., description="Pass this nonce back to the evaluation URL below")
+    brief: str = Field(..., description="mentions what the app needs to do")
+    checks: List[str] = Field(..., description="mention how it will be evaluated")
+    evaluation_url: Optional[HttpUrl] = Field(..., description="Send repo & commit details to the URL below")
+    attachments: List[Attachment]
+    
+class Submission(BaseModel):
     """
-    Represents follow-up revision requests from evaluator.
-    Refers to an existing build and specifies changes.
+    Represents the request we are going to post to the evaluation_url
+    Contains information about the github repository, deployed page, etc
     """
-    secret: str = Field(..., description="Shared secret for request authentication")
-    project_name: str = Field(..., example="LLM Deployment Agent")
-    repo_url: HttpUrl = Field(..., example="https://github.com/student/llm-student-agent")
-    brief: Optional[Dict[str, Any]] = None  # <-- add this
-    changes: List[str] = Field(..., description="List of textual change instructions or issues to fix")
-    round_id: Optional[int] = Field(2, description="Revision round number (default: 2)")
+    email: EmailStr = Field(..., description="Copy from initial request")
+    task: str = Field(..., description="Copy from initial request")
+    round: PositiveInt = Field(..., description="There will be multiple rounds per task. This is the round index")
+    nonce: str = Field(..., description="Pass this nonce back to the evaluation URL below")
+    repo_url: HttpUrl = Field(..., description="Github Repository URL")
+    commit_sha: str = Field(..., description="Commit SHA for the commit")
+    pages_url: HttpUrl = Field(..., description="Deployed GitHub Pages URL")

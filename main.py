@@ -17,7 +17,7 @@ configure_logging(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("llm_agent.main")
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="LLM Student Agent", version="0.1.0")
+    app = FastAPI(title="LLM Student Agent", version="1.0.0")
 
     # Include API routes (from api/endpoints.py)
     app.include_router(api_router)

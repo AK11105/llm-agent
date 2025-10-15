@@ -13,22 +13,22 @@ class Deployer:
     def __init__(self):
         self.github = GitHubService()
 
-    def deploy_to_github(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    async def deploy_to_github(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """
         Deploy generated files to GitHub and enable Pages.
         """
-        repo_name = metadata["task_id"]
+        repo_name = metadata["task"].strip().replace(" ", "-")
         files = metadata["saved_files"]
 
         logger.info(f"🚀 Starting deployment for {repo_name}...")
 
-        repo_url = self.github.create_repo(repo_name)
-        self.github.upload_files(repo_name, files)
-        self.github.add_license(repo_name)
+        repo_url = await self.github.get_or_create_repo(repo_name)
+        commit_sha = self.github.upload_all_files_single_commit(repo_name, files)
         pages_url = self.github.enable_pages(repo_name)
 
         deployment_info = {
             "repo_name": repo_name,
+            "commit_sha": commit_sha,
             "repo_url": repo_url,
             "pages_url": pages_url,
         }

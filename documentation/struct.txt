@@ -1,52 +1,78 @@
-llm_agent/
-├── api/
+llm-agent
+├── .env
+├── .gitignore
+├── .python-version
+├── api
+│   ├── endpoints.py
 │   ├── __init__.py
-│   ├── endpoints.py          # Defines /build and /revise routes
-│   ├── validators.py         # Validates incoming JSON schema and secrets
-│
-├── core/
+├── core
+│   ├── builder.py
+│   ├── deployer.py
+│   ├── generator.py
+│   ├── reviser.py
+│   ├── verifier.py
 │   ├── __init__.py
-│   ├── build_flow.py         # Main orchestration for first build
-│   ├── revise_flow.py        # Handles code updates & redeployments
-│
-├── services/
+├── data
+│   └── attachments
+│       ├── data.csv
+│       └── hello.txt
+├── documentation
+│   ├── struct.txt
+│   ├── System-Architecture.png
+│   └── TESTING.md
+├── logs
+│   └── app.log
+├── main.py
+├── models
+│   ├── request_models.py
 │   ├── __init__.py
-│   ├── llm_service.py        # Interacts with the LLM for code generation/refactor
-│   ├── github_service.py     # Handles repo creation, commits, and GitHub Pages deploy
-│   ├── http_service.py       # Handles POSTs to institution evaluation endpoint
-│   ├── secret_service.py     # Authenticates requests using a shared secret
-│   ├── storage_service.py    # Optional: caches attachments or generated code temporarily
-│
-├── templates/
-│   ├── app_prompt.txt        # Base LLM prompt for fresh app generation
-│   ├── revise_prompt.txt     # Prompt for refactoring an existing repo
-│   ├── readme_prompt.txt     # Prompt to create README.md
-│   ├── license.txt           # MIT License template
-│
-├── utils/
+├── output
+│   └── aipipe_raw_response.json
+├── pyproject.toml
+├── README.md
+├── requirements.txt
+├── services
+│   ├── github_service.py
+│   ├── llm_service.py
 │   ├── __init__.py
-│   ├── logger.py             # Centralized logging setup
-│   ├── config.py             # Loads environment variables and configs
-│   ├── files.py              # File read/write, temp dir helpers
-│   ├── retry.py              # Retry decorator for network operations
-│
-├── data/
+├── templates
+│   └── prompts
+│       ├── base_prompt.txt
+│       ├── readme_prompt.txt
+│       ├── refactor_prompt.txt
+│       └── webapp_prompt.txt
+├── tests
+│   ├── test_api.py
+│   ├── test_attachment_func.py
+│   ├── test_services.py
 │   ├── __init__.py
-│   ├── db.py                 # Optional: SQLite setup for local tracking
-│   ├── models.py             # Schema for builds, revisions, logs
-│   ├── cache.json            # Local metadata (repo URLs, commit SHAs)
-│
-├── tests/
+├── utils
+│   ├── attachment.py
+│   ├── config.py
+│   ├── json_parser.py
+│   ├── logger.py
 │   ├── __init__.py
-│   ├── test_build_flow.py    # Unit tests for initial build logic
-│   ├── test_revise_flow.py   # Unit tests for revision flow
-│   ├── test_http_service.py  # Tests POST requests and responses
-│
-├── configs/
-│   ├── dev.env               # Contains local environment variables
-│   ├── logging.yaml          # Logging format and verbosity settings
-│
-├── .env                      # Main environment file for runtime (gitignored)
-├── requirements.txt           # Python dependencies (FastAPI, requests, openai, etc.)
-├── README.md                  # Documentation for your own repo
-└── main.py                    # Entry point: runs API server and registers routes
+├── uv.lock
+├── workspace
+│   ├── captcha_solver
+│   │   ├── index.html
+│   │   ├── main.py
+│   │   └── README.md
+│   ├── phase4_test_app
+│   │   ├── index.html
+│   │   ├── main.py
+│   │   └── README.md
+│   ├── Simple Calculator
+│   │   ├── .gitignore
+│   │   ├── id
+│   │   ├── index.html
+│   │   ├── LICENSE
+│   │   ├── main.py
+│   │   ├── object
+│   │   ├── README.md
+│   │   ├── script.js
+│   │   └── styles.css
+│   └── test_build_app
+│       ├── index.html
+│       ├── main.py
+│       └── README.md
