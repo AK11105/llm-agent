@@ -25,7 +25,7 @@ curl -X GET "http://127.0.0.1:8000/health"
 ### ✅ Valid Secret
 
 ```bash
-curl -X POST "http://127.0.0.1:8000/build" \
+curl -X POST "https://llm-agent-ai74.onrender.com/build" \
   -H "Content-Type: application/json" \
   -d '{
     "email": "23f2001251@ds.study.iitm.ac.in",
@@ -99,7 +99,7 @@ curl -X POST "http://127.0.0.1:8000/build" \
 ### ✅ Valid Secret & Revision List
 
 ```bash
-$ curl -X POST "http://127.0.0.1:8000/build"   -H "Content-Type: application/json"   -d '{
+$ curl -X POST "https://llm-agent-ai74.onrender.com/build"   -H "Content-Type: application/json"   -d '{
     "email": "23f2001251@ds.study.iitm.ac.in",
     "secret": "super_secret_token",
     "task": "Simple Calculator",
@@ -110,7 +110,7 @@ $ curl -X POST "http://127.0.0.1:8000/build"   -H "Content-Type: application/jso
       "Repo has MIT license",
       "README.md is professional and updated based on refactoring",
       "Page displays another section for attachment output",
-      "Page displays addition of all columns in a row and displays output",
+      "Page displays addition of all columns in a row and displays output and display the result on the pages",
       "Page displays results immediately on the screen"
     ],
     "evaluation_url": "https://example.com/notify",

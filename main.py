@@ -39,6 +39,11 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["health"])
     async def health():
         return {"status": "ok"}
+    
+    @app.get("/", tags=["root"])
+    async def root():
+        return {"status": "ok"}
+
 
     return app
 
