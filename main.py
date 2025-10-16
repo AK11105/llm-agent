@@ -1,6 +1,6 @@
 import os
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 import uvicorn
 from dotenv import load_dotenv
 
@@ -43,6 +43,14 @@ def create_app() -> FastAPI:
     @app.get("/", tags=["root"])
     async def root():
         return {"status": "ok"}
+    
+    @app.head("/health", tags=["health"])
+    async def health_head():
+        return Response(status_code=200)
+    
+    @app.head("/", tags=["root"])
+    async def root_head():
+        return Response(status_code=200)
 
 
     return app
