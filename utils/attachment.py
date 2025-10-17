@@ -3,6 +3,7 @@ import base64
 import logging
 import csv
 import shutil
+import mimetypes
 
 logger = logging.getLogger("llm_agent.utils.attachments")
 
@@ -148,3 +149,51 @@ def copy_required_attachments(app_dir: Path, attachment_names: list[str]):
         dst = app_dir / name
         if src.exists():
             shutil.copy(src, dst)
+            
+
+def prepare_attachments_for_prompt(attachments):
+    """
+    Prepares a formatted summary of attachments with actual inline content for text/code files
+    and short base64 previews for image/binary files.
+    """
+
+    parts = []
+
+    for att in attachments:
+        # Support both dict-based and object-based attachments
+        file_path = Path(att.get("path") if isinstance(att, dict) else att.path)
+        mime, _ = mimetypes.guess_type(file_path.name)
+        mime = mime or "application/octet-stream"
+
+        header = f"### {file_path.name} ({mime}) ###"
+
+        # --- Text and code files ---
+        if mime.startswith("text/") or file_path.suffix in (".py", ".js", ".json", ".md", ".html", ".css", ".ts"):
+            try:
+                content = file_path.read_text(encoding="utf-8")
+                if len(content) > 8000:
+                    content = content[:8000] + "\n... [truncated for length]\n"
+                parts.append(f"{header}\n{content}\n--- End of {file_path.name} ---\n")
+            except Exception as e:
+                parts.append(f"{header}\n[Error reading file: {e}]\n")
+
+        # --- Image files ---
+        elif mime.startswith("image/"):
+            try:
+                b64data = base64.b64encode(file_path.read_bytes()).decode("utf-8")
+                preview = b64data[:300] + "..." if len(b64data) > 300 else b64data
+                parts.append(f"{header}\n(Image attachment)\nBase64 preview:\n{preview}\n")
+            except Exception as e:
+                parts.append(f"{header}\n[Error encoding image: {e}]\n")
+
+        # --- Binary or unknown types ---
+        else:
+            try:
+                size_kb = file_path.stat().st_size / 1024
+                parts.append(f"{header}\n(Binary file, {size_kb:.1f} KB — omitted content)\n")
+            except Exception as e:
+                parts.append(f"{header}\n[Error accessing file: {e}]\n")
+
+    return "\n".join(parts)
+
+

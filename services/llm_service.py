@@ -6,7 +6,7 @@ from typing import Dict, List
 from openai import OpenAI
 import httpx
 
-from utils.attachment import decode_attachments, summarize_attachment_meta, _strip_code_block, generate_readme_fallback
+from utils.attachment import decode_attachments, summarize_attachment_meta, _strip_code_block, generate_readme_fallback, prepare_attachments_for_prompt
 from utils.json_parser import parse_aipipe_response
 from models.request_models import Attachment
 
@@ -57,7 +57,7 @@ class LLMService:
 
         # Convert attachments to usable metadata
         saved_attachments = decode_attachments([att.dict() for att in attachments])
-        attachments_meta = summarize_attachment_meta(saved_attachments)
+        #attachments_meta = summarize_attachment_meta(saved_attachments)
 
         # Load prompts
         base_prompt = self.load_prompt("base_prompt.txt")
@@ -66,7 +66,9 @@ class LLMService:
 
         # Format checks and attachments
         formatted_checks = "\n".join(f"- {c}" for c in checks)
-        formatted_attachments = attachments_meta or "(no attachments)"
+        formatted_attachments = prepare_attachments_for_prompt(saved_attachments)
+        if not formatted_attachments.strip():
+            formatted_attachments = "(no attachments)"
 
         # Combine into full prompt
         combined_prompt = (
@@ -164,7 +166,7 @@ class LLMService:
             readme_content = generate_readme_fallback(
                 brief=brief,
                 checks=checks,
-                attachments_meta=attachments_meta,
+                attachments_meta=formatted_attachments,
                 round_num=1,
             )
             generated_files["README.md"] = readme_content
@@ -187,7 +189,7 @@ class LLMService:
 
         # Convert attachments to usable metadata
         saved_attachments = decode_attachments([att.dict() for att in attachments])
-        attachments_meta = summarize_attachment_meta(saved_attachments)
+        #attachments_meta = summarize_attachment_meta(saved_attachments)
 
         # Load prompts
         base_prompt = self.load_prompt("base_prompt.txt")
@@ -196,7 +198,9 @@ class LLMService:
 
         # Format checks, attachments, and existing files
         formatted_checks = "\n".join(f"- {c}" for c in checks)
-        formatted_attachments = attachments_meta or "(no attachments)"
+        formatted_attachments = prepare_attachments_for_prompt(saved_attachments)
+        if not formatted_attachments.strip():
+            formatted_attachments = "(no attachments)"
         existing_files_formatted = "\n".join(f"### {fname} ###\n{content}\n" for fname, content in existing_files.items())
 
         # Combine into full prompt
@@ -294,7 +298,7 @@ class LLMService:
             readme_content = generate_readme_fallback(
                 brief=brief,
                 checks=checks,
-                attachments_meta=attachments_meta,
+                attachments_meta=formatted_attachments,
                 round_num=1,
             )
             updated_files["README.md"] = readme_content
