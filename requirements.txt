@@ -20,6 +20,9 @@ email-validator
 #   OPENAI + LLM SERVICE
 # ================================
 openai==1.53.0             # Official OpenAI API client
+google-auth==2.41.1
+google-genai==1.45.0
+
 
 # ================================
 #   GITHUB SERVICE

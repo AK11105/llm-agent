@@ -18,6 +18,7 @@ Instructions:
 5. If the task suggests a data pipeline, notebook, or analysis, still maintain proper file structure.
 6. Never use dummy values or fake data unless clearly requested.
 7. Return your response as a JSON object where keys are filenames and values are the corresponding file contents."
+8. Always return `index.html` for frontend, `app.js` for logic, `styles.css` if needed; use python only if not possible in app.js
 
 Attachment Handling:
 - Only include attachments explicitly provided in this request.

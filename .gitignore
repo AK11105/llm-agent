@@ -68,7 +68,6 @@ Desktop.ini
 
 # Environment variables
 .env
-.env.*
 
 # Generated files / workspace
 workspace/

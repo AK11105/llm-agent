@@ -57,7 +57,7 @@ class LLMService:
 
         # Convert attachments to usable metadata
         saved_attachments = decode_attachments([att.dict() for att in attachments])
-        attachments_meta = summarize_attachment_meta(saved_attachments) 
+        attachments_meta = summarize_attachment_meta(saved_attachments)
 
         # Load prompts
         base_prompt = self.load_prompt("base_prompt.txt")
@@ -78,11 +78,54 @@ class LLMService:
             f"README.md updation:\n{readme_prompt}\n\n"
         )
 
-        # Call AIPipe/OpenAI API
         generated_files: Dict[str, str]
+
+        async def gemini_fallback() -> Dict[str, str]:
+            """Inline Gemini fallback for failed AIPipe requests using simplified parsing."""
+            try:
+                import httpx
+
+                url = f"{settings.GEMINI_BASE_URL}?key={settings.GEMINI_API_KEY}"
+                payload = {
+                    "contents": [{"parts": [{"text": combined_prompt}]}],
+                    "systemInstruction": {
+                        "parts": [{"text": "You are a helpful coding assistant that outputs runnable web apps. Return JSON with `filename`: `file content`"}]
+                    },
+                    "generationConfig": {"responseMimeType": "application/json"}
+                }
+
+                async with httpx.AsyncClient(timeout=120) as client:
+                    response = await client.post(url, json=payload)
+                    response.raise_for_status()
+                    raw_result = response.json()
+
+                generated_files_local: Dict[str, str] = {}
+
+                # Gemini now returns all files inside a single JSON string
+                for candidate in raw_result.get("candidates", []):
+                    parts = candidate.get("content", {}).get("parts", [])
+                    if parts:
+                        try:
+                            files_dict = json.loads(parts[0]["text"])
+                            if isinstance(files_dict, dict):
+                                generated_files_local.update(files_dict)
+                        except json.JSONDecodeError as e:
+                            logger.warning(f"Failed to parse Gemini response JSON: {e}")
+
+                if not generated_files_local:
+                    # minimal fallback
+                    generated_files_local["main.py"] = "# Fallback minimal scaffold\nprint('Hello World')"
+
+                return generated_files_local
+
+            except Exception as e:
+                logger.warning(f"Gemini fallback failed: {repr(e)}. Returning minimal scaffold.")
+                return {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+
+        # --- AIPipe logic unchanged ---
         if not api_base:
-            logger.warning("LLM API base URL not configured. Falling back to minimal scaffold.")
-            generated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+            logger.warning("LLM API base URL not configured. Falling back to Gemini.")
+            generated_files = await gemini_fallback()
         else:
             try:
                 async with httpx.AsyncClient(timeout=httpx.Timeout(240.0, read=240.0)) as client:
@@ -95,30 +138,26 @@ class LLMService:
                         json={
                             "model": "gpt-4o",
                             "input": [
-                                {"role": "system", "content": "You are a helpful coding assistant that outputs runnable web apps."},
-                                {"role": "user", "content": combined_prompt}
-                            ]
-                        }
+                                {
+                                    "role": "system",
+                                    "content": "You are a helpful coding assistant that outputs runnable web apps.",
+                                },
+                                {"role": "user", "content": combined_prompt},
+                            ],
+                        },
                     )
-                    response.raise_for_status()
-                    raw_output = response.text
-                    logger.debug(f"🔍 Raw AIPipe response: {raw_output[:1000]}")
 
-                    if not raw_output.strip():
-                        logger.warning("AIPipe API returned empty output. Falling back to minimal scaffold.")
-                        generated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+                    if response.status_code != 200 or not response.text.strip():
+                        logger.warning(f"AIPipe response invalid ({response.status_code}). Falling back to Gemini.")
+                        generated_files = await gemini_fallback()
                     else:
-                        # Use parser instead of raw json.loads
-                        parsed_output = parse_aipipe_response(raw_output)
+                        parsed_output = parse_aipipe_response(response.text)
                         generated_files = self._ensure_str_dict(parsed_output)
                         logger.info("✅ Generated code using AIPipe API.")
 
-            except httpx.HTTPStatusError as e:
-                logger.warning(f"AIPipe API failed with status {e.response.status_code}: {e.response.text}. Falling back to minimal scaffold.")
-                generated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
             except Exception as e:
-                logger.warning(f"AIPipe API failed: {repr(e)}. Falling back to minimal scaffold.")
-                generated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+                logger.warning(f"AIPipe request failed: {repr(e)}. Falling back to Gemini.")
+                generated_files = await gemini_fallback()
 
         # Ensure README.md exists
         if "README.md" not in generated_files:
@@ -126,7 +165,7 @@ class LLMService:
                 brief=brief,
                 checks=checks,
                 attachments_meta=attachments_meta,
-                round_num=1
+                round_num=1,
             )
             generated_files["README.md"] = readme_content
 
@@ -145,19 +184,22 @@ class LLMService:
         Refactor existing code based on new brief + checks + attachments.
         Returns updated files {filename: content}.
         """
-        
+
         # Convert attachments to usable metadata
         saved_attachments = decode_attachments([att.dict() for att in attachments])
         attachments_meta = summarize_attachment_meta(saved_attachments)
 
+        # Load prompts
         base_prompt = self.load_prompt("base_prompt.txt")
         refactor_prompt = self.load_prompt("refactor_prompt.txt")
         readme_prompt = self.load_prompt("readme_prompt.txt")
 
+        # Format checks, attachments, and existing files
         formatted_checks = "\n".join(f"- {c}" for c in checks)
         formatted_attachments = attachments_meta or "(no attachments)"
         existing_files_formatted = "\n".join(f"### {fname} ###\n{content}\n" for fname, content in existing_files.items())
 
+        # Combine into full prompt
         combined_prompt = (
             f"{base_prompt}\n\n{refactor_prompt}\n\n"
             f"Task:\n{task}\n\n"
@@ -169,9 +211,51 @@ class LLMService:
         )
 
         updated_files: Dict[str, str]
+
+        async def gemini_fallback() -> Dict[str, str]:
+            """Inline Gemini fallback for failed AIPipe requests using simplified parsing."""
+            try:
+                import httpx
+
+                url = f"{settings.GEMINI_BASE_URL}?key={settings.GEMINI_API_KEY}"
+                payload = {
+                    "contents": [{"parts": [{"text": combined_prompt}]}],
+                    "systemInstruction": {
+                        "parts": [{"text": "You are a helpful coding assistant that outputs runnable web apps. Return JSON with `filename`: `file content`"}]
+                    },
+                    "generationConfig": {"responseMimeType": "application/json"}
+                }
+
+                async with httpx.AsyncClient(timeout=120) as client:
+                    response = await client.post(url, json=payload)
+                    response.raise_for_status()
+                    raw_result = response.json()
+
+                generated_files_local: Dict[str, str] = {}
+
+                for candidate in raw_result.get("candidates", []):
+                    parts = candidate.get("content", {}).get("parts", [])
+                    if parts:
+                        try:
+                            files_dict = json.loads(parts[0]["text"])
+                            if isinstance(files_dict, dict):
+                                generated_files_local.update(files_dict)
+                        except json.JSONDecodeError as e:
+                            logger.warning(f"Failed to parse Gemini response JSON: {e}")
+
+                if not generated_files_local:
+                    generated_files_local["main.py"] = "# Fallback minimal scaffold\nprint('Hello World')"
+
+                return generated_files_local
+
+            except Exception as e:
+                logger.warning(f"Gemini fallback failed: {repr(e)}. Returning minimal scaffold.")
+                return {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+
+        # --- AIPipe logic unchanged ---
         if not api_base:
-            logger.warning("LLM API base URL not configured. Falling back to minimal scaffold.")
-            updated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+            logger.warning("LLM API base URL not configured. Falling back to Gemini.")
+            updated_files = await gemini_fallback()
         else:
             try:
                 async with httpx.AsyncClient(timeout=httpx.Timeout(240.0, read=240.0)) as client:
@@ -184,29 +268,35 @@ class LLMService:
                         json={
                             "model": "gpt-4o",
                             "input": [
-                                {"role": "system", "content": "You are a helpful coding assistant that outputs runnable web apps."},
-                                {"role": "user", "content": combined_prompt}
-                            ]
-                        }
+                                {
+                                    "role": "system",
+                                    "content": "You are a helpful coding assistant that outputs runnable web apps.",
+                                },
+                                {"role": "user", "content": combined_prompt},
+                            ],
+                        },
                     )
-                    response.raise_for_status()
-                    raw_output = response.text
-                    logger.debug(f"🔍 Raw AIPipe response: {raw_output[:1000]}")
 
-                    if not raw_output.strip():
-                        logger.warning("AIPipe API returned empty output. Falling back to minimal scaffold.")
-                        updated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+                    if response.status_code != 200 or not response.text.strip():
+                        logger.warning(f"AIPipe response invalid ({response.status_code}). Falling back to Gemini.")
+                        updated_files = await gemini_fallback()
                     else:
-                        # Use parser instead of raw json.loads
-                        parsed_output = parse_aipipe_response(raw_output)
+                        parsed_output = parse_aipipe_response(response.text)
                         updated_files = self._ensure_str_dict(parsed_output)
                         logger.info("✅ Generated code using AIPipe API.")
 
-            except httpx.HTTPStatusError as e:
-                logger.warning(f"AIPipe API failed with status {e.response.status_code}: {e.response.text}. Falling back to minimal scaffold.")
-                updated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
             except Exception as e:
-                logger.warning(f"AIPipe API failed: {repr(e)}. Falling back to minimal scaffold.")
-                updated_files = {"main.py": "# Fallback minimal scaffold\nprint('Hello World')"}
+                logger.warning(f"AIPipe request failed: {repr(e)}. Falling back to Gemini.")
+                updated_files = await gemini_fallback()
+
+        # Ensure README.md exists
+        if "README.md" not in updated_files:
+            readme_content = generate_readme_fallback(
+                brief=brief,
+                checks=checks,
+                attachments_meta=attachments_meta,
+                round_num=1,
+            )
+            updated_files["README.md"] = readme_content
 
         return updated_files

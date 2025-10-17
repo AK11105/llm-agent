@@ -16,6 +16,7 @@ Instructions:
 5. Ensure all previous functionalities still pass and new ones are added correctly.
 6. Return only the revised code.
 7. Return your response as a JSON object where keys are filenames and values are the corresponding file contents.
+8. Always return `index.html` for frontend, `app.js` for logic, `styles.css` if needed; use python only if not possible in app.js
 
 Attachment Handling:
 - Only include attachments explicitly provided in this request.

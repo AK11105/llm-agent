@@ -6,13 +6,14 @@ from typing import Optional
 class Settings(BaseSettings):
     GITHUB_TOKEN: str = Field(..., env="GITHUB_TOKEN")
     LLM_API_KEY: Optional[str] = Field(..., env="LLM_API_KEY")
+    GEMINI_API_KEY: str = Field(..., env="GEMINI_API_KEY")
     STUDENT_SECRET: Optional[str] = Field(..., env="STUDENT_SECRET")
     APP_ENV: str = Field("dev", env="APP_ENV")
     PORT: int = Field(8000, env="PORT")
     RETRY_MAX_ATTEMPTS: int = Field(5, env="RETRY_MAX_ATTEMPTS")
     HUGGING_FACE_TOKEN: str | None = None
     AIPIPE_URL: AnyHttpUrl = Field(..., env="AIPIPE_URL")
-
+    GEMINI_BASE_URL: AnyHttpUrl = Field(..., env="GEMINI_BASE_URL")
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"index.html\": \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n<head>\\n    <meta charset=\\\"UTF-8\\\">\\n    <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\n    <title>Simple BODMAS Calculator</title>\\n    <link rel=\\\"stylesheet\\\" href=\\\"styles.css\\\">\\n</head>\\n<body>\\n    <div class=\\\"calculator-container\\\">\\n        <h1>BODMAS Calculator</h1>\\n        <div class=\\\"input-group\\\">\\n            <input type=\\\"number\\\" id=\\\"num1\\\" placeholder=\\\"Enter first number\\\">\\n            <input type=\\\"number\\\" id=\\\"num2\\\" placeholder=\\\"Enter second number\\\">\\n        </div>\\n        <div class=\\\"operations\\\">\\n            <button data-operator=\\\"+\\\">+</button>\\n            <button data-operator=\\\"-\\\">-</button>\\n            <button data-operator=\\\"*\\\">*</button>\\n            <button data-operator=\\\"/\\\">/</button>\\n        </div>\\n        <div class=\\\"result-group\\\">\\n            <p>Result: <span id=\\\"result\\\"></span></p>\\n        </div>\\n    </div>\\n    <script src=\\\"app.js\\\"></script>\\n</body>\\n</html>\\n\",\n  \"styles.css\": \"body {\\n    font-family: Arial, sans-serif;\\n    display: flex;\\n    justify-content: center;\\n    align-items: center;\\n    min-height: 100vh;\\n    margin: 0;\\n    background-color: #f4f4f4;\\n}\\n\\n.calculator-container {\\n    background-color: #fff;\\n    padding: 30px;\\n    border-radius: 8px;\\n    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);\\n    text-align: center;\\n    width: 300px;\\n}\\n\\nh1 {\\n    color: #333;\\n    margin-bottom: 25px;\\n}\\n\\n.input-group input[type=\\\"number\\\"] {\\n    width: calc(100% - 20px);\\n    padding: 10px;\\n    margin-bottom: 15px;\\n    border: 1px solid #ddd;\\n    border-radius: 4px;\\n    font-size: 1em;\\n}\\n\\n.operations {\\n    display: grid;\\n    grid-template-columns: repeat(2, 1fr);\\n    gap: 10px;\\n    margin-bottom: 25px;\\n}\\n\\n.operations button {\\n    padding: 15px;\\n    font-size: 1.5em;\\n    border: none;\\n    border-radius: 4px;\\n    background-color: #007bff;\\n    color: white;\\n    cursor: pointer;\\n    transition: background-color 0.2s ease;\\n}\\n\\n.operations button:hover {\\n    background-color: #0056b3;\\n}\\n\\n.result-group p {\\n    font-size: 1.2em;\\n    color: #555;\\n    margin: 0;\\n}\\n\\n#result {\\n    font-weight: bold;\\n    color: #28a745;\\n}\\n\",\n  \"app.js\": \"document.addEventListener('DOMContentLoaded', () => {\\n    const num1Input = document.getElementById('num1');\\n    const num2Input = document.getElementById('num2');\\n    const resultSpan = document.getElementById('result');\\n    const operationButtons = document.querySelectorAll('.operations button');\\n\\n    operationButtons.forEach(button => {\\n        button.addEventListener('click', () => {\\n            const num1 = parseFloat(num1Input.value);\\n            const num2 = parseFloat(num2Input.value);\\n            const operator = button.dataset.operator;\\n            let result;\\n\\n            if (isNaN(num1) || isNaN(num2)) {\\n                resultSpan.textContent = 'Please enter valid numbers';\\n                resultSpan.style.color = 'red';\\n                return;\\n            }\\n\\n            switch (operator) {\\n                case '+':\\n                    result = num1 + num2;\\n                    break;\\n                case '-':\\n                    result = num1 - num2;\\n                    break;\\n                case '*':\\n             
+       result = num1 * num2;\\n                    break;\\n                case '/':\\n                    if (num2 === 0) {\\n                        resultSpan.textContent = 'Division by zero is not allowed';\\n                        resultSpan.style.color = 'red';\\n                        return;\\n                    
+} else {\\n                        result = num1 / num2;\\n                    }\\n                    break;\\n                default:\\n                    resultSpan.textContent = 'Invalid operation';\\n                    resultSpan.style.color = 'red';\\n                    return;\\n            }\\n            resultSpan.textContent = result.toFixed(2); // Display result with 2 decimal places\\n            resultSpan.style.color = '#28a745'; // Reset color to success\\n        });\\n    });\\n});\\n\"\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 672,
+    "candidatesTokenCount": 1211,
+    "totalTokenCount": 2183,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 672
+      }
+    ],
+    "thoughtsTokenCount": 300
+  },
+  "modelVersion": "models/gemini-2.5-flash-preview-05-20",
+  "responseId": "L0nyaO2yMqiU1e8PwpjNoAg"
+}

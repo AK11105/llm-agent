@@ -41,7 +41,7 @@ curl -X POST "https://llm-agent-ai74.onrender.com/build" \
       "Page displays +, -, *, / operation buttons",
       "Page displays results immediately on the screen"
     ],
-    "evaluation_url": "https://example.com/notify",
+    "evaluation_url": "https://www.postb.in/1760709612791-5926733918022",
     "attachments": []
   }'
 
@@ -113,7 +113,7 @@ $ curl -X POST "https://llm-agent-ai74.onrender.com/build"   -H "Content-Type: a
       "Page displays addition of all columns in a row and displays output and display the result on the pages",
       "Page displays results immediately on the screen"
     ],
-    "evaluation_url": "https://example.com/notify",
+    "evaluation_url": "https://www.postb.in/1760709612791-5926733918022",
     "attachments": [{
         "name": "data.csv",
         "url": "data:text/csv;base64,Y29sMSxjb2wyLGNvbDMKMSwyLDMKNiw3LDgK"
