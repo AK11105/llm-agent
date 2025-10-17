@@ -3,7 +3,7 @@
 # ================================
 fastapi==0.115.5           # Web framework
 uvicorn==0.32.0            # ASGI server for FastAPI
-httpx==0.27.2              # Async HTTP client
+httpx              # Async HTTP client
 requests==2.32.3           # Sync HTTP client
 
 # ================================
