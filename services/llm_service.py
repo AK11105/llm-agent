@@ -28,7 +28,8 @@ class LLMService:
 
     def __init__(self, prompts_dir: str = "templates/prompts"):
         self.prompts_dir = Path(prompts_dir)
-        self.client = OpenAI(api_key=os.getenv("LLM_API_KEY"))
+        #self.client = OpenAI(api_key=os.getenv("LLM_API_KEY"))
+        self.client = None
 
     def load_prompt(self, prompt_name: str) -> str:
         prompt_path = self.prompts_dir / prompt_name
